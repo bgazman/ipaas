@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: ipaas.postgres
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ipaas_admin_user
+      POSTGRES_PASSWORD: ipaas_admin_pwd
+      POSTGRES_DB: ipaas
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./config/database:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ipaas.network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ipaas_admin_user -d ipaas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    container_name: ipaas.rabbitmq
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management
+    environment:
+      RABBITMQ_DEFAULT_USER: ipaas_broker_user
+      RABBITMQ_DEFAULT_PASS: ipaas_broker_pwd
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ipaas.network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  keycloak:
+    container_name: ipaas.keycloak
+    image: quay.io/keycloak/keycloak:latest
+    command: 
+      - start-dev
+      - --http-enabled=true
+      - --http-port=8080
+      - --hostname-strict=false
+      - --hostname=localhost
+    environment:
+      KEYCLOAK_ADMIN: ipaas_keycloak_admin
+      KEYCLOAK_ADMIN_PASSWORD: ipaas_keycloak_pwd
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://ipaas.postgres:5432/ipaas
+      KC_DB_SCHEMA: ipaas_auth
+      KC_DB_USERNAME: ipaas_keycloak_user
+      KC_DB_PASSWORD: ipaas_keycloak_pwd
+    ports:
+      - "9090:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ipaas.network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  ipaas.network:
+    name: ipaas.network
+
+volumes:
+  postgres_data:
+    name: ipaas.postgres.data
+  rabbitmq_data:
+    name: ipaas.rabbitmq.data
