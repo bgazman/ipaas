@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@securityService.checkTenantAccess(#tenantId)")
+@PreAuthorize("@ipaasSecurityService.checkTenantAccess(#tenantId)")
 public @interface RequiresTenant {
     boolean required() default true;
 }

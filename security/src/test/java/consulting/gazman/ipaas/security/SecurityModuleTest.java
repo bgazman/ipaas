@@ -33,14 +33,14 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import consulting.gazman.ipaas.security.client.KeycloakClient;
 import consulting.gazman.ipaas.security.model.IpaasUser;
 import consulting.gazman.ipaas.security.model.IpaasUserImpl;
-import consulting.gazman.ipaas.security.service.SecurityService;
+import consulting.gazman.ipaas.security.service.IpaasSecurityService;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class SecurityModuleTest {
 
     @Mock
-    private SecurityService securityService;
+    private IpaasSecurityService ipaasSecurityService;
 
     @Mock
     private KeycloakClient keycloakClient;
@@ -78,13 +78,13 @@ public class SecurityModuleTest {
     @Test
     void testUserAuthentication() {
         // Reset the mock just in case it's being affected by previous test configurations
-        reset(securityService);
+        reset(ipaasSecurityService);
     
         // Stub the mock again
-        when(securityService.getCurrentUser()).thenReturn(testUser);
+        when(ipaasSecurityService.getCurrentUser()).thenReturn(testUser);
     
         // Call the method to get the current user
-        IpaasUser currentUser = securityService.getCurrentUser();
+        IpaasUser currentUser = ipaasSecurityService.getCurrentUser();
     
         // Debug: Print the currentUser properties to check if it matches the testUser
         if (currentUser != null) {
@@ -105,45 +105,45 @@ public class SecurityModuleTest {
         assertEquals(Set.of("ADMIN", "USER"), currentUser.getRoles(), "Roles should match the test user's roles.");
     
         // Verify that the method was called on the mock
-        verify(securityService).getCurrentUser();
+        verify(ipaasSecurityService).getCurrentUser();
     }
            
 
 
 @Test
 void testRequiresPermissionAnnotation() {
-    when(securityService.hasPermission("READ")).thenReturn(true);
-    when(securityService.hasPermission("WRITE")).thenReturn(true);
-    when(securityService.hasPermission("DELETE")).thenReturn(false);
+    when(ipaasSecurityService.hasPermission("READ")).thenReturn(true);
+    when(ipaasSecurityService.hasPermission("WRITE")).thenReturn(true);
+    when(ipaasSecurityService.hasPermission("DELETE")).thenReturn(false);
 
     // Perform assertions
-    assertTrue(securityService.hasPermission("READ"), "READ permission should be granted.");
-    assertTrue(securityService.hasPermission("WRITE"), "WRITE permission should be granted.");
-    assertFalse(securityService.hasPermission("DELETE"), "DELETE permission should not be granted.");
+    assertTrue(ipaasSecurityService.hasPermission("READ"), "READ permission should be granted.");
+    assertTrue(ipaasSecurityService.hasPermission("WRITE"), "WRITE permission should be granted.");
+    assertFalse(ipaasSecurityService.hasPermission("DELETE"), "DELETE permission should not be granted.");
 
     // Verify that each hasPermission call was made with the expected argument
-    verify(securityService).hasPermission("READ");
-    verify(securityService).hasPermission("WRITE");
-    verify(securityService).hasPermission("DELETE");
+    verify(ipaasSecurityService).hasPermission("READ");
+    verify(ipaasSecurityService).hasPermission("WRITE");
+    verify(ipaasSecurityService).hasPermission("DELETE");
 
     // Use verifyNoMoreInteractions to ensure no other stubbings are done
-    verifyNoMoreInteractions(securityService);
+    verifyNoMoreInteractions(ipaasSecurityService);
 }
 
 
 @Test
 void testRequiresTenantAnnotation() {
-    when(securityService.getCurrentUser()).thenReturn(testUser);
+    when(ipaasSecurityService.getCurrentUser()).thenReturn(testUser);
 
     // Call getCurrentUser twice to satisfy the expected number of invocations
-    String tenantId1 = securityService.getCurrentUser().getTenantId();
-    String tenantId2 = securityService.getCurrentUser().getTenantId();
+    String tenantId1 = ipaasSecurityService.getCurrentUser().getTenantId();
+    String tenantId2 = ipaasSecurityService.getCurrentUser().getTenantId();
 
     assertEquals("test-tenant", tenantId1, "Tenant ID should match the expected value.");
     assertEquals("test-tenant", tenantId2, "Tenant ID should match the expected value on the second call.");
 
     // Verify that the getCurrentUser method was indeed called twice
-    verify(securityService, times(2)).getCurrentUser();
+    verify(ipaasSecurityService, times(2)).getCurrentUser();
 }
 
 
@@ -187,25 +187,25 @@ void testRequiresTenantAnnotation() {
             new SimpleGrantedAuthority("ROLE_USER")
         );
 
-        when(securityService.getAuthorities()).thenReturn(authorities);
+        when(ipaasSecurityService.getAuthorities()).thenReturn(authorities);
 
-        List<SimpleGrantedAuthority> userAuthorities = securityService.getAuthorities();
+        List<SimpleGrantedAuthority> userAuthorities = ipaasSecurityService.getAuthorities();
         assertEquals(2, userAuthorities.size());
         assertTrue(userAuthorities.stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN")));
         assertTrue(userAuthorities.stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER")));
 
-        verify(securityService).getAuthorities();
+        verify(ipaasSecurityService).getAuthorities();
     }
 
     @Test
     void testMultiTenancy() {
-        when(securityService.isSameTenant("test-tenant")).thenReturn(true);
-        when(securityService.isSameTenant("other-tenant")).thenReturn(false);
+        when(ipaasSecurityService.isSameTenant("test-tenant")).thenReturn(true);
+        when(ipaasSecurityService.isSameTenant("other-tenant")).thenReturn(false);
 
-        assertTrue(securityService.isSameTenant("test-tenant"));
-        assertFalse(securityService.isSameTenant("other-tenant"));
+        assertTrue(ipaasSecurityService.isSameTenant("test-tenant"));
+        assertFalse(ipaasSecurityService.isSameTenant("other-tenant"));
 
-        verify(securityService).isSameTenant("test-tenant");
-        verify(securityService).isSameTenant("other-tenant");
+        verify(ipaasSecurityService).isSameTenant("test-tenant");
+        verify(ipaasSecurityService).isSameTenant("other-tenant");
     }
 }

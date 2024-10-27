@@ -35,7 +35,3 @@ build/
 **/docker/config/database/*
 !**/docker/config/database/.gitkeep
 
-# ### Maven Wrapper ###
-.mvn/
-!mvnw
-!mvnw.cmd

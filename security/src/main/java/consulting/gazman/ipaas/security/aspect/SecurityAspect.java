@@ -14,24 +14,24 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import consulting.gazman.ipaas.security.annotations.RequiresPermission;
 import consulting.gazman.ipaas.security.annotations.RequiresTenant;
-import consulting.gazman.ipaas.security.service.SecurityService;
+import consulting.gazman.ipaas.security.service.IpaasSecurityService;
 import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Component
 @Slf4j
 public class SecurityAspect {
-    private final SecurityService securityService;
+    private final IpaasSecurityService ipaasSecurityService;
 
-    public SecurityAspect(SecurityService securityService) {
-        this.securityService = securityService;
+    public SecurityAspect(IpaasSecurityService ipaasSecurityService) {
+        this.ipaasSecurityService = ipaasSecurityService;
     }
 
     @Around("@annotation(requiresPermission)")
     public Object checkPermission(ProceedingJoinPoint joinPoint, RequiresPermission requiresPermission) throws Throwable {
         String permission = buildPermissionString(requiresPermission, joinPoint);
         
-        if (!securityService.hasPermission(permission)) {
+        if (!ipaasSecurityService.hasPermission(permission)) {
             throw new AccessDeniedException("Missing required permission: " + permission);
         }
         
@@ -42,7 +42,7 @@ public class SecurityAspect {
     public Object checkTenant(ProceedingJoinPoint joinPoint, RequiresTenant requiresTenant) throws Throwable {
         String tenantId = extractTenantId(joinPoint);
         
-        if (!securityService.isInTenant(tenantId)) {
+        if (!ipaasSecurityService.isInTenant(tenantId)) {
             throw new AccessDeniedException("User not authorized for tenant: " + tenantId);
         }
         

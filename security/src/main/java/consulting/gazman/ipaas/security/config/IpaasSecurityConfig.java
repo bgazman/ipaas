@@ -21,7 +21,7 @@ import consulting.gazman.ipaas.security.service.IpaasUserService;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class IpaasSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -9,7 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@securityService.hasPermission(#root.target.class.name + '_' + #root.method.name)")
+@PreAuthorize("@ipaasSecurityService.hasPermission(#root.target.class.name + '_' + #root.method.name)")
 public @interface RequiresPermission {
     String value();
     String action() default "";

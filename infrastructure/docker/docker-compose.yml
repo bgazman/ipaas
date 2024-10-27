@@ -69,7 +69,21 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
+  redis:
+    container_name: ipaas.redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ipaas.network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
 networks:
   ipaas.network:
     name: ipaas.network
@@ -79,3 +93,5 @@ volumes:
     name: ipaas.postgres.data
   rabbitmq_data:
     name: ipaas.rabbitmq.data
+  redis_data:
+    name: ipaas.redis.data    

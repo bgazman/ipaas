@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class SecurityService {
+public class IpaasSecurityService {
 
     public IpaasUser getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

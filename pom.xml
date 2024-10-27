@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.4</version>
+        <version>3.3.4</version>
     </parent>
 
     <groupId>consulting.gazman.ipaas</groupId>
@@ -20,6 +20,7 @@
         <lombok.version>1.18.30</lombok.version>
         <resilience4j.version>2.2.0</resilience4j.version>
         <guava.version>33.0.0-jre</guava.version>        
+
     </properties>
 
     <dependencyManagement>
@@ -48,16 +49,15 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-                    <!-- Spring Cloud Dependencies -->
-
+        <!-- Spring Cloud Dependencies -->
+        </dependency> 
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>2023.0.3</version> <!-- Kilburn version -->
             <type>pom</type>
             <scope>import</scope>
-        </dependency>        
+               </dependency> 
         </dependencies>            
     </dependencyManagement>
 
@@ -74,7 +74,6 @@
         <module>common</module>
         <module>infrastructure</module>
         <module>security</module>
-        <module>api</module>
     </modules>
 
     <profiles>
@@ -90,7 +89,6 @@
                 <module>common</module>
                 <module>infrastructure</module>
                 <module>security</module>
-                <module>api</module>
             </modules>
         </profile>
     </profiles>
