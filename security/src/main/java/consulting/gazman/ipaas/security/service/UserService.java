@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Collections;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import consulting.gazman.ipaas.security.client.KeycloakClient;

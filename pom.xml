@@ -25,7 +25,23 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Internal module dependencies -->
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>messaging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+ <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-spring-boot-starter</artifactId>
                 <version>${keycloak.version}</version>
@@ -57,9 +73,10 @@
             <version>2023.0.3</version> <!-- Kilburn version -->
             <type>pom</type>
             <scope>import</scope>
-               </dependency> 
-        </dependencies>            
+        </dependency>             
+        </dependencies>
     </dependencyManagement>
+
 
     <!-- Add this dependencies section -->
     <dependencies>
@@ -74,6 +91,7 @@
         <module>common</module>
         <module>infrastructure</module>
         <module>security</module>
+        <module>workflow</module>
     </modules>
 
     <profiles>
@@ -89,6 +107,7 @@
                 <module>common</module>
                 <module>infrastructure</module>
                 <module>security</module>
+                <module>workflow</module>
             </modules>
         </profile>
     </profiles>
