@@ -93,6 +93,11 @@ public class WorkflowMessageProducer {
         }
     }
 
+    public void sendWorkflowRunningMessage(UUID workflowId,String workflowName) {
+        String routingKey = QueueNames.getWorkflowStartQueue(workflowName);
+        convertAndSendMessage(routingKey, workflowId);
+    }
+
 
     
 }

@@ -20,7 +20,6 @@ public class StepStatusService {
     private final StepStatusHistoryRepository historyRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Autowired
     public StepStatusService(WorkflowStepRepository stepRepository,
                              StepStatusHistoryRepository historyRepository,
                              ApplicationEventPublisher eventPublisher) {

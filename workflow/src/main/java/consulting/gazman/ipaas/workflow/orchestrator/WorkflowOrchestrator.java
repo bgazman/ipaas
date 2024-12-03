@@ -6,11 +6,13 @@ import org.slf4j.Logger;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import consulting.gazman.ipaas.workflow.model.Workflow;
 import consulting.gazman.ipaas.workflow.model.WorkflowDefinition;
 import consulting.gazman.ipaas.workflow.enums.WorkflowStatus;
+import consulting.gazman.ipaas.workflow.implementations.oms.workflow.SubmitOrderWorkflowDefinition;
 import consulting.gazman.ipaas.workflow.model.WorkflowStep;
 import consulting.gazman.ipaas.workflow.repository.WorkflowPayloadRepository;
 import consulting.gazman.ipaas.workflow.repository.WorkflowStepRepository;
@@ -41,15 +43,30 @@ public class WorkflowOrchestrator  {
 
     private final WorkflowStepRepository workflowStepRepository;
 
-    // Constructor with dependencies injection
-
+    @Async
     @Transactional
-    public UUID startWorkflow(WorkflowDefinition workflowDefinition, UUID workflowId) {
-        logger.info("Starting workflow: {}", workflowId);
+    public void handleWorkflowEvent(UUID workflowId){
+        logger.info("Received Workflow Event: {}", workflowId);
     
         Workflow workflow = workflowRepository.findById(workflowId)
             .orElseThrow(() -> new WorkflowNotFoundException("Workflow not found: {} " ));
-    
+            if(workflow.getSteps().size() == 0){
+                startWorkflow(workflow);
+            }else{
+                //contine workflow
+            }
+            
+
+    }
+
+
+    public UUID startWorkflow(Workflow workflow) {
+
+        UUID workflowId = workflow.getId();
+        logger.info("Starting workflow: {}", workflowId);
+         // Create the appropriate WorkflowDefinition
+        WorkflowDefinition workflowDefinition = getWorkflowDefinition();
+        
         logger.info("Initializing workflow definition: {}", workflowDefinition.getClass().getSimpleName());
         workflowDefinition.initialize(workflow);
     
@@ -82,6 +99,9 @@ public class WorkflowOrchestrator  {
         messageProducer.sendStepStartMessage( step.getStepName(), step.getWorkflow().getId());
     }
 
+    private WorkflowDefinition getWorkflowDefinition() {
+        return new SubmitOrderWorkflowDefinition();
+    }
 
 
     // public void startNextStep(UUID workflowId) {

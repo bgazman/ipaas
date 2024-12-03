@@ -4,9 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import consulting.gazman.ipaas.workflow.model.WorkflowPayload;
+import java.util.Optional;
 
 import java.util.UUID;
 @Repository
 public interface WorkflowPayloadRepository extends JpaRepository<WorkflowPayload, UUID> {
-    // The String type parameter corresponds to the type of the @Id field (workflowId)
+    WorkflowPayload findByWorkflowId(UUID workflowId);
 }

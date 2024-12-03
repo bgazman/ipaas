@@ -25,19 +25,14 @@ import consulting.gazman.ipaas.workflow.model.WorkflowPayload;
 import consulting.gazman.ipaas.workflow.model.WorkflowStep;
 import consulting.gazman.ipaas.workflow.repository.StepStatusHistoryRepository;
 import consulting.gazman.ipaas.workflow.repository.WorkflowRepository;
-import consulting.gazman.ipaas.workflow.repository.WorkflowStepRepository;
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.hibernate.Hibernate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.time.temporal.ChronoUnit;
@@ -50,8 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WorkflowServiceImpl implements WorkflowService {
 
-    @Autowired
     private final WorkflowRepository workflowRepository;
+
     private final WorkflowMessageProducer messageProducer;
     private final ObjectMapper objectMapper;
     private StepStatusHistoryRepository stepStatusHistoryRepository;
@@ -62,30 +57,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         this.objectMapper = objectMapper;
     }
 
-    // @Override
-    // public void processWorkflow(UUID workflowId, WorkflowType workflowType) {
-    //     switch (workflowType) {
-    //         case SUBMIT_ORDER_START:
-    //             processSubmitOrderStart(workflowId);
-    //             break;
-    //         // Other cases
-    //         default:
-    //             throw new IllegalArgumentException("Unsupported workflow type: " + workflowType);
-    //     }
-    // }
-
-    private void processSubmitOrderStart(UUID workflowId) {
-        Workflow workflow = workflowRepository.findById(workflowId)
-                .orElseThrow(() -> new WorkflowNotFoundException("Workflow not found:"));
-
-        // Update workflow status
-        workflow.setStatus(WorkflowStatus.STARTED.name());
-
-        // Perform any other necessary actions for submit-order.start
-        // This might include creating an order, updating related entities, etc.
-
-        workflowRepository.save(workflow);
-    }
 
 
     @Override
@@ -181,9 +152,6 @@ public class WorkflowServiceImpl implements WorkflowService {
     public StepHistoryResponse getStepHistory(UUID workflowId, UUID stepId) {
         // Verify workflow exists
         WorkflowStep workflowStep = new WorkflowStep() ;
-
-        // = workflowStepRepository.findByIdAndWorkflowId(stepId, workflowId)
-        //     .orElseThrow(() -> new StepNotFoundException("Step not found for workflow"));
 
         // Get history entries
         List<StepStatusHistory> historyEntries = stepStatusHistoryRepository

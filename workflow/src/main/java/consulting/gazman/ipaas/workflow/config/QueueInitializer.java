@@ -3,13 +3,12 @@ package consulting.gazman.ipaas.workflow.config;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import consulting.gazman.ipaas.workflow.messaging.constants.QueueNames;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
+import org.springframework.context.annotation.Configuration;
 
-@Component
+@Configuration
 public class QueueInitializer {
 
 private static final Logger logger = LoggerFactory.getLogger(QueueInitializer.class);
@@ -21,6 +20,7 @@ private static final Logger logger = LoggerFactory.getLogger(QueueInitializer.cl
 
 
     }
+    @PostConstruct
     public void initializeQueues() {
         logger.info("Starting queue initialization");
 
@@ -110,6 +110,12 @@ private static final Logger logger = LoggerFactory.getLogger(QueueInitializer.cl
 public void verifyQueues() {
     QueueNames.ALL_WORKFLOWS.forEach(workflow -> {
         String queueName = QueueNames.getWorkflowStartQueue(workflow);
+        logger.info("Verifying queue: " + queueName);
+        amqpAdmin.getQueueProperties(queueName);
+    });
+
+    QueueNames.ALL_STEPS.forEach(step -> {
+        String queueName = QueueNames.getStepStartQueue(step);
         logger.info("Verifying queue: " + queueName);
         amqpAdmin.getQueueProperties(queueName);
     });

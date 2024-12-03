@@ -4,5 +4,6 @@ public enum StepStatus {
     PENDING,
     IN_PROGRESS,
     COMPLETED,
-    FAILED
+    FAILED,
+    PENDING_RETRY
 }

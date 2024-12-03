@@ -12,7 +12,6 @@ public abstract class WorkflowMessageConsumer extends AbstractMessageConsumer<UU
 @Override
 protected UUID convertMessage(Object payload) {
     if (payload instanceof UUID) {
-        logger.info("MESSAGE CONVERTED : {}" , payload);
         return (UUID) payload;
     } else {
         throw new IllegalArgumentException("Expected UUID, but received: " + payload.getClass());

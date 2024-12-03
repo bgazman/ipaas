@@ -30,11 +30,9 @@ public class SubmitOrderStartConsumer extends WorkflowMessageConsumer {
 
     @Override
     protected void processMessage(UUID workflowId) {
-        // Create the appropriate WorkflowDefinition
-        WorkflowDefinition workflowDefinition = new SubmitOrderWorkflowDefinition();
-        UUID startedWorkflowId = workflowOrchestrator.startWorkflow(workflowDefinition, workflowId);
+         workflowOrchestrator.handleWorkflowEvent(workflowId);
 
-        logger.info("SubmitOrderWorkflow started and first step triggered for workflow: {}", startedWorkflowId);
+        logger.info("SubmitOrderWorkflow started and first step triggered for workflow: {}", workflowId);
     }
 
     @Override
