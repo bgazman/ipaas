@@ -18,6 +18,7 @@ import consulting.gazman.ipaas.workflow.api.exception.WorkflowNotFoundException;
 import consulting.gazman.ipaas.workflow.enums.WorkflowStatus;
 import consulting.gazman.ipaas.workflow.messaging.constants.QueueNames;
 import consulting.gazman.ipaas.workflow.enums.WorkflowType;
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
 import consulting.gazman.ipaas.workflow.messaging.producer.WorkflowMessageProducer;
 import consulting.gazman.ipaas.workflow.model.StepStatusHistory;
 import consulting.gazman.ipaas.workflow.model.Workflow;
@@ -27,6 +28,7 @@ import consulting.gazman.ipaas.workflow.repository.StepStatusHistoryRepository;
 import consulting.gazman.ipaas.workflow.repository.WorkflowRepository;
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class WorkflowServiceImpl implements WorkflowService {
+public class WorkflowServiceImpl<T> implements WorkflowService {
 
     private final WorkflowRepository workflowRepository;
 
@@ -64,11 +66,13 @@ public class WorkflowServiceImpl implements WorkflowService {
         Workflow workflow = workflowRepository.findById(workflowId)
                 .orElseThrow(() -> new WorkflowNotFoundException("Workflow not found: " + workflowId));
 
-        workflow.setStatus(WorkflowStatus.CREATED.name());
+        workflow.setStatus(WorkflowStatus.SUBMITTED.name());
         workflow.setUpdatedAt(LocalDateTime.now());
         workflow.setUpdatedBy("system"); // You might want to get this from authentication context
         workflow = workflowRepository.save(workflow);
-        messageProducer.sendWorkflowStartMessage(workflow.getName(), workflow.getId());
+        // Assuming T is String in this case
+
+        messageProducer.sendWorkflowEvent(workflow);
 
         workflow = workflowRepository.save(workflow);
 
@@ -89,7 +93,7 @@ public class WorkflowServiceImpl implements WorkflowService {
         Workflow workflow = new Workflow();
         workflow.setName(workflowName);
         workflow.setType(request.getWorkflowType());
-        workflow.setStatus(WorkflowStatus.CREATED.name());
+        workflow.setStatus(WorkflowStatus.SUBMITTED.name());
         workflow.setCreatedAt(LocalDateTime.now());
         workflow.setUpdatedAt(LocalDateTime.now());
 
@@ -105,10 +109,11 @@ public class WorkflowServiceImpl implements WorkflowService {
             throw new WorkflowCreationException("Failed to create workflow: " + request.getWorkflowName());
         }
         try {
-            messageProducer.sendWorkflowStartMessage(workflowName, workflow.getId());
+
+            messageProducer.sendWorkflowEvent(workflow);
         } catch (Exception e) {
             // Consider whether you want to roll back the workflow creation if message sending fails
-            throw new ApiException("Workflow created but failed to initiate execution: " + request.getWorkflowName());
+            throw new ApiException("Workflow created but failed to initiate execution: " + workflow.getId());
         }
 
         return mapToWorkflowSubmitResponse(workflow);

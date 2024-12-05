@@ -17,5 +17,7 @@ public interface WorkflowStepRepository extends JpaRepository<WorkflowStep, UUID
     List<StepStatusHistory> findByWorkflowSteps_Id(UUID stepId);
     Optional<WorkflowStep> findByIdAndWorkflowId(UUID id, UUID workflowId);
     List<WorkflowStep> findByWorkflowId(UUID workflowId);
+    WorkflowStep findFirstByWorkflowIdOrderByStepOrderAsc(UUID workflowId);
+
 }
 

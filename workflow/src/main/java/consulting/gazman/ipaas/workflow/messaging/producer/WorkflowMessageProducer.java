@@ -1,6 +1,8 @@
 package consulting.gazman.ipaas.workflow.messaging.producer;
 
 
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
+import consulting.gazman.ipaas.workflow.model.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -15,13 +17,14 @@ import jakarta.annotation.PostConstruct;
 import java.util.UUID;
 
 @Component
-public class WorkflowMessageProducer {
+public class WorkflowMessageProducer{
     private static final Logger logger = LoggerFactory.getLogger(WorkflowMessageProducer.class);
 
     private final RabbitTemplate rabbitTemplate;
     private static final String EXCHANGE_NAME = "workflow.exchange";
 
     public WorkflowMessageProducer(RabbitTemplate rabbitTemplate) {
+
         this.rabbitTemplate = rabbitTemplate;
     }
 
@@ -37,15 +40,25 @@ public class WorkflowMessageProducer {
         });
     }
 
-    public void sendWorkflowStartMessage(String workflowName, UUID workflowId) {
-        String routingKey = QueueNames.getWorkflowStartQueue(workflowName);
-        convertAndSendMessage(routingKey, workflowId);
+    public void sendWorkflowEvent(Workflow workflow) {
+
+        WorkflowMessage workflowMessage = new WorkflowMessage();
+        workflowMessage.setWorkflowId(workflow.getId());
+        workflowMessage.setWorkflowName(workflow.getName());
+        workflowMessage.setAction("");
+        convertAndSendMessage(QueueNames.getWorkflowQueue(workflowMessage.getWorkflowName()), workflowMessage);
     }
 
-    public void sendStepStartMessage(String stepName, UUID workflowId) {
-        String routingKey = QueueNames.getStepStartQueue(stepName);
-        convertAndSendMessage(routingKey, workflowId);
+    public void sendStepEvent(WorkflowMessage message){
+
+        convertAndSendMessage(String.valueOf(message.getStepChannel()), message);
+
     }
+
+//    public void sendStepStartMessage(String stepName, UUID workflowId) {
+//        String routingKey = QueueNames.getStepStartQueue(stepName);
+//        convertAndSendMessage(routingKey, workflowId);
+//    }
 
     public void sendToDLQwithTTL(String stepName,UUID workflowId,long ttl){
         String routingKey = QueueNames.getStepDLQ(stepName);
@@ -53,23 +66,24 @@ public class WorkflowMessageProducer {
         
     }
 
-    public void sendStepEndMessage(String stepName, UUID workflowId) {
-        String routingKey = QueueNames.getStepEndQueue(stepName);
-        convertAndSendMessage(routingKey,workflowId);
-
+    public void sendToRetryQueue(String stepName,UUID stepId,long ttl){
+        String routingKey = QueueNames.getStepRetryQueue(stepName);
+        convertAndSendMessage(routingKey, stepId, ttl);
         
-    };
+    }
 
-    protected void convertAndSendMessage(String routingKey,UUID workflowId){
+
+
+    protected void convertAndSendMessage(String routingKey,WorkflowMessage workflowMessage){
         String correlationId = UUID.randomUUID().toString();
         CorrelationData correlationData = new CorrelationData(correlationId);
         try {
-            rabbitTemplate.convertAndSend(EXCHANGE_NAME, routingKey, workflowId, correlationData);
+            rabbitTemplate.convertAndSend(EXCHANGE_NAME, routingKey, workflowMessage, correlationData);
             logger.info("sending message. WorkflowId: {}, CorrelationId: {}, RoutingKey: {}",
-             workflowId, correlationId, routingKey);
+                    workflowMessage, correlationId, routingKey);
         } catch (Exception e) {
             logger.error("Failed to send message.  WorkflowId: {}, RoutingKey: {}",
-             workflowId, routingKey, e);
+                    workflowMessage, routingKey, e);
             // You might want to rethrow the exception or handle it according to your application's needs
         }
     }
@@ -93,10 +107,7 @@ public class WorkflowMessageProducer {
         }
     }
 
-    public void sendWorkflowRunningMessage(UUID workflowId,String workflowName) {
-        String routingKey = QueueNames.getWorkflowStartQueue(workflowName);
-        convertAndSendMessage(routingKey, workflowId);
-    }
+
 
 
     

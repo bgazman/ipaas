@@ -13,18 +13,19 @@ public abstract class AbstractMessageConsumer<T> {
     protected final MessageConverter messageConverter;
 
     protected AbstractMessageConsumer(MessageConverter messageConverter) {
+
         this.messageConverter = messageConverter;
     }
 
     protected abstract void processMessage(T message);
-    protected abstract T convertMessage(Object payload);
+    protected abstract T convertMessage(Message message);
     protected abstract String getQueueName();
 
     protected void receiveMessage(String rawMessage, Channel channel, Message message) {
         logger.info("Received message in queue {}", getQueueName());
         try {
-            Object payload = messageConverter.fromMessage(message);
-            T convertedPayload = convertMessage(payload);
+//            Object payload = messageConverter.fromMessage(message);
+            T convertedPayload = convertMessage(message);
             processMessage(convertedPayload);
             
             // Acknowledge the message after successful processing

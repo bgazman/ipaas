@@ -23,7 +23,16 @@ public class ValidateOrder extends WorkflowStepService {
 
     @Override
     public String handleBusinessLogic(String payload) {
-        logger.info("HANDLING BUSINESS LOGIC");
+        logger.info("HANDLING BUSINESS LOGIC:" + payload);
+        try {
+            System.out.println("Thread sleeping for 30 seconds...");
+            Thread.sleep(3000);  // Sleep for 30,000 milliseconds (30 seconds)
+            System.out.println("Thread woke up after 30 seconds.");
+        } catch (InterruptedException e) {
+            System.err.println("Thread was interrupted!");
+        }
+
+
         if(payload == "1"){
             return SUCCESS;
         }

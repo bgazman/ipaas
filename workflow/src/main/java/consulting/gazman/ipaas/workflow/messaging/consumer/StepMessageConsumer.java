@@ -1,33 +1,38 @@
 package consulting.gazman.ipaas.workflow.messaging.consumer;
 
 import com.rabbitmq.client.Channel;
+import consulting.gazman.ipaas.workflow.service.WorkflowStepService;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConverter;
-import java.util.UUID;
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
+public abstract class StepMessageConsumer extends  AbstractMessageConsumer<WorkflowMessage> {
 
-public abstract class StepMessageConsumer extends  AbstractMessageConsumer<UUID> {
+private final WorkflowStepService workflowStepService;
+    protected StepMessageConsumer(MessageConverter messageConverter,WorkflowStepService workflowStepService) {
 
-
-    protected StepMessageConsumer(MessageConverter messageConverter) {
         super(messageConverter);
+        this.workflowStepService = workflowStepService;
     }
 
 
-@Override
-protected UUID convertMessage(Object payload) {
-    if (payload instanceof UUID) {
-        return (UUID) payload;
-    } else {
-        throw new IllegalArgumentException("Expected UUID, but received: " + payload.getClass());
-    }
-
-}
+//    @Override
+//    protected WorkflowMessage convertMessage(Message message) {
+//        if (message instanceof WorkflowMessage) {
+//            return (WorkflowMessage) message;
+//        } else {
+//            throw new IllegalArgumentException("Expected WorkflowMessage, but received: " + payload.getClass());
+//        }
+//    }
+    
 
 public void receiveMessage(String rawMessage, Channel channel, Message message) {
     super.receiveMessage(rawMessage, channel, message);
 }
 
-
+    @Override
+    protected void processMessage(WorkflowMessage message) {
+        workflowStepService.handleStepEvent(message);
+    }
 
     protected long calculateTTL(int retryCount) {
         // Base delay in milliseconds (e.g., 1 second)

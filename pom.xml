@@ -41,7 +41,9 @@
                 <artifactId>persistence</artifactId>
                 <version>${project.version}</version>
             </dependency>
- <dependency>
+            <!-- Other dependencies -->
+
+            <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-spring-boot-starter</artifactId>
                 <version>${keycloak.version}</version>

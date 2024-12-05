@@ -1,5 +1,7 @@
 package consulting.gazman.ipaas.workflow.service;
 
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowStepMessage;
 import consulting.gazman.ipaas.workflow.model.WorkflowPayload;
 import consulting.gazman.ipaas.workflow.model.WorkflowStep;
 import consulting.gazman.ipaas.workflow.repository.WorkflowPayloadRepository;
@@ -14,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import java.util.UUID;
+
+import java.util.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Comparator;
-import java.util.Optional;
+
+import consulting.gazman.ipaas.workflow.exception.WorkflowNotFoundException;
 
 public abstract class WorkflowStepService{
     private  final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,9 +37,9 @@ public abstract class WorkflowStepService{
 
         String status = step.getStatus();
 
-        if (status == StepStatus.IN_PROGRESS.name()) {
+        if (status.equals(StepStatus.IN_PROGRESS.name()) ) {
             step.setStartedAt(LocalDateTime.now());
-        } else if (status == StepStatus.COMPLETED.name()) {
+        } else if (status.equals(StepStatus.COMPLETED.name())) {
             step.setCompletedAt(LocalDateTime.now());
         }
         workflowStepRepository.save(step);
@@ -45,11 +47,25 @@ public abstract class WorkflowStepService{
 
 
     @Async
-    public void executeStep(UUID workflowId,String stepName) {
-        logger.info("Executing Step: " + stepName +"for workflow: " + workflowId );
-        WorkflowStep step = getStepByWorkflowId(workflowId);
+    public void handleStepEvent(WorkflowMessage message) {
+        // Extract the workflowId from the message
+        UUID stepId;
+        try {
+            stepId = message.getStepId();
+
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid workflowId in WorkflowMessage", e);
+            return;
+        }
+        WorkflowStep step = null;
+       try{
+        step  = workflowStepRepository.findById(stepId)
+        .orElseThrow(() -> new WorkflowStepNotFoundException(stepId));
+       }catch(WorkflowStepNotFoundException e){
+            logger.error("{} Unable to find step in db",stepId, e);
+       }
         if(step == null){
-             handleStepFailure(step,"StepNoFound");
+             //handleStepFailure(step,"StepNoFound");
              return;
             }
         step.setStartedAt(LocalDateTime.now());
@@ -61,17 +77,21 @@ public abstract class WorkflowStepService{
             handleStepFailure(step, businessLogicResult);
         }
         updateStep(step);
-        notifyWorkflow(step.getWorkflow().getId(),step.getWorkflow().getName());
-    }
+
+        messageProducer.sendWorkflowEvent(step.getWorkflow());    }
    
     public String handleBusinessLogic(String payload){
         return "";
     }
 
 
-    public void notifyWorkflow(UUID workflowId,String workflowName) {
-        messageProducer.sendWorkflowRunningMessage(workflowId,workflowName);
-    }
+//    public void notifyWorkflow(UUID workflowId,String workflowName,String action) {
+//        WorkflowMessage<String> workflowMessage = new WorkflowMessage<>();
+//        workflowMessage.setWorkflowId(workflowId);
+//        workflowMessage.setWorkflowName(workflowName);
+//        workflowMessage.setAction(action);
+//        messageProducer.sendWorkflowEvent(workflowMessage);
+//    }
 
 
 
@@ -80,7 +100,7 @@ public abstract class WorkflowStepService{
         List<WorkflowStep> steps = workflowStepRepository.findByWorkflowId(workflowId);
 
         return steps.stream()
-            .filter(step -> step.getStatus() != StepStatus.COMPLETED.name() && step.getStatus() != StepStatus.FAILED.name())
+            .filter(step -> !Objects.equals(step.getStatus(), StepStatus.COMPLETED.name()) && step.getStatus() != StepStatus.FAILED.name())
             .sorted(Comparator.comparing(WorkflowStep::getStepOrder).reversed()
                              .thenComparing(WorkflowStep::getCreatedAt).reversed())
             .findFirst()
@@ -91,18 +111,18 @@ public abstract class WorkflowStepService{
     public void handleStepFailure(WorkflowStep step,String reason) {
         
         //if retry 
-        if(step.getRetryCount() == step.getMaxRetries()){
+        if(Objects.equals(step.getRetryCount(), step.getMaxRetries())){
             step.setStatus(StepStatus.FAILED.name());
         }else{
             step.setStatus(StepStatus.PENDING_RETRY.name());            
-            messageProducer.sendToDLQwithTTL(reason, step.getWorkflow().getId(), calculateTTL(step.getRetryCount()));
+            messageProducer.sendToDLQwithTTL(step.getStepName(), step.getId(), calculateTTL(step.getRetryCount()));
         }
 
     }
 
     private long calculateTTL(int retryCount) {
         // Base delay in milliseconds (e.g., 1 second)
-        long baseDelay = 1000;
+        long baseDelay = 20000;
         
         // Maximum delay to cap the backoff (e.g., 1 hour)
         long maxDelay = 3600000;

@@ -12,7 +12,7 @@ public final class QueueNames {
     public static final String START_SUFFIX = ".start";
     public static final String END_SUFFIX = ".end";
     public static final String DLQ_SUFFIX = ".dlq";
-
+    public static final String RETRY_SUFFIX = ".retry";
     // Workflow names
     public static final String WORKFLOW_SUBMIT_ORDER = "submit-order";
 
@@ -56,8 +56,13 @@ public final class QueueNames {
     public static String getStepEndQueue(String stepName) {
         return QUEUE_PREFIX + "step." + stepName + END_SUFFIX;
     }
-
+    public static String getWorkflowQueue(String workflowName){
+        return QUEUE_PREFIX + "workflow."+workflowName + START_SUFFIX;
+    }
     public static String getStepDLQ(String stepName) {
         return QUEUE_PREFIX + "step." + stepName + DLQ_SUFFIX;
+    }
+    public static String getStepRetryQueue(String stepName) {
+        return QUEUE_PREFIX + "step." + stepName + RETRY_SUFFIX;
     }
 }

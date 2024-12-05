@@ -1,5 +1,6 @@
 package consulting.gazman.ipaas.workflow.orchestrator;
 
+import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
 import consulting.gazman.ipaas.workflow.repository.WorkflowRepository;
 
 import org.slf4j.Logger;
@@ -44,23 +45,37 @@ public class WorkflowOrchestrator  {
     private final WorkflowStepRepository workflowStepRepository;
 
     @Async
-    @Transactional
-    public void handleWorkflowEvent(UUID workflowId){
-        logger.info("Received Workflow Event: {}", workflowId);
-    
-        Workflow workflow = workflowRepository.findById(workflowId)
-            .orElseThrow(() -> new WorkflowNotFoundException("Workflow not found: {} " ));
-            if(workflow.getSteps().size() == 0){
-                startWorkflow(workflow);
-            }else{
-                //contine workflow
+    public void handleWorkflowEvent(WorkflowMessage workflowMessage){
+        // Extract the workflowId from the message
+        UUID workflowId;
+        try {
+            workflowId = workflowMessage.getWorkflowId();
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid workflowId in WorkflowMessage", e);
+            return;
+        }
+        Workflow workflow = null;
+        try{
+            workflow = workflowRepository.findById(workflowId)
+            .orElseThrow(() -> new WorkflowNotFoundException("Workflow not found" ));
+        }catch(WorkflowNotFoundException e){
+            logger.error("Workflow not found", e);
+            return;
+        }
+        if(workflow.getStatus().equals( WorkflowStatus.SUBMITTED.name())){
+                createWorkflowSteps(workflow);
+                workflowRepository.findById(workflowId).get().getSteps(); 
+                workflow.setStatus(WorkflowStatus.CREATED.name());
+                workflowRepository.save(workflow);
+                startWorkflowExecution(workflowId);
+                return;
             }
-            
+        
 
     }
 
-
-    public UUID startWorkflow(Workflow workflow) {
+    @Transactional
+    public void createWorkflowSteps(Workflow workflow) {
 
         UUID workflowId = workflow.getId();
         logger.info("Starting workflow: {}", workflowId);
@@ -78,26 +93,30 @@ public class WorkflowOrchestrator  {
             workflowStepRepository.save(step);
         }
     
-        workflow.setStatus(WorkflowStatus.STARTED.name());
-        workflowRepository.save(workflow);
+
+
+        logger.info("{} : Workflow created", workflowId);
     
-        logger.info("Workflow started: {}", workflowId);
-    
-        // Trigger the first step
-        if (!steps.isEmpty()) {
-            WorkflowStep firstStep = steps.get(0);
-            triggerNextStep(firstStep);
-        } else {
-            logger.warn("No steps defined for workflow: {}", workflowId);
-        }
-    
-        return workflow.getId();
+
     }
     
-    private void triggerNextStep(WorkflowStep step) {
-        logger.info("Triggering next step: {} for workflow: {}", step.getStepName(), step.getWorkflow().getId());
-        messageProducer.sendStepStartMessage( step.getStepName(), step.getWorkflow().getId());
+    public void startWorkflowExecution(UUID workflowId){
+
+            
+        WorkflowStep step = workflowStepRepository.findFirstByWorkflowIdOrderByStepOrderAsc(workflowId);
+        WorkflowMessage workflowMessage = new WorkflowMessage();
+        workflowMessage.setStepId(step.getId());
+        workflowMessage.setStepName(step.getStepName());
+        workflowMessage.setAction("START");
+        workflowMessage.setData("dd");
+        messageProducer.sendStepEvent(workflowMessage);
+        logger.info("{} : Triggering workflow execution", workflowId);
+
     }
+//    private void triggerStepExecution(WorkflowStep step) {
+//        logger.info("Triggering next step: {} for workflow: {}", step.getStepName(), step.getWorkflow().getId());
+//        messageProducer.sendStepStartMessage( step.getStepName(), step.getId());
+//    }
 
     private WorkflowDefinition getWorkflowDefinition() {
         return new SubmitOrderWorkflowDefinition();

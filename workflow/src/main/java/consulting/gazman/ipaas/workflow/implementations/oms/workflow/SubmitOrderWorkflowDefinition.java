@@ -52,15 +52,15 @@ public class SubmitOrderWorkflowDefinition implements WorkflowDefinition {
         return Duration.ofHours(1);
     }
     @Override
-    public void addStep(Workflow workflow, String stepName, int order,int retryCount) {
+    public void addStep(Workflow workflow, String stepName, int order,int maxRetries) {
         WorkflowStep step = new WorkflowStep();
         step.setId(UUID.randomUUID());
         step.setWorkflow(workflow);
         step.setStepName(stepName);
         step.setStatus("PENDING");
         step.setStepOrder(order);
-        step.setRetryCount(retryCount);
-        step.setMaxRetries(3);
+        step.setRetryCount(0);
+        step.setMaxRetries(maxRetries);
         steps.add(step);
     }
 }

@@ -1,6 +1,7 @@
 package consulting.gazman.ipaas.workflow.enums;
 
 public enum WorkflowStatus {
+    SUBMITTED,
     CREATED,
     INITIALIZED,
     QUEUED,
