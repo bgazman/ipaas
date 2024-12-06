@@ -1,35 +1,54 @@
 package consulting.gazman.ipaas.workflow.messaging.consumer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import consulting.gazman.ipaas.workflow.service.WorkflowStepService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.support.converter.MessageConverter;
 import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
-public abstract class StepMessageConsumer extends  AbstractMessageConsumer<WorkflowMessage> {
+public abstract class StepMessageConsumer  {
 
 private final WorkflowStepService workflowStepService;
-    protected StepMessageConsumer(MessageConverter messageConverter,WorkflowStepService workflowStepService) {
+    protected final ObjectMapper objectMapper;
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        super(messageConverter);
+    protected StepMessageConsumer(WorkflowStepService workflowStepService,ObjectMapper objectMapper) {
         this.workflowStepService = workflowStepService;
+        this.objectMapper = objectMapper;
     }
 
 
-//    @Override
-//    protected WorkflowMessage convertMessage(Message message) {
-//        if (message instanceof WorkflowMessage) {
-//            return (WorkflowMessage) message;
-//        } else {
-//            throw new IllegalArgumentException("Expected WorkflowMessage, but received: " + payload.getClass());
-//        }
-//    }
+    protected WorkflowMessage convertMessage(Message message) {
+        WorkflowMessage workflowMessage = null;
+        try {
+            workflowMessage = objectMapper.readValue(message.getBody(), new TypeReference<WorkflowMessage>() {
+            });
+        } catch (Exception e) {
+            logger.error("Failed to convert message", e);
+        }
+        return workflowMessage;
+    }
     
 
-public void receiveMessage(String rawMessage, Channel channel, Message message) {
-    super.receiveMessage(rawMessage, channel, message);
-}
+    protected void receiveMessage(Message message) {
+        logger.info("Received message in queue {}", getQueueName());
+        try {
+            WorkflowMessage workflowMessage = convertMessage(message);
+            processMessage(workflowMessage);
+            
 
-    @Override
+        }catch(Exception e){
+
+
+        }
+    }
+    protected String getQueueName(){
+        return "";
+      }
     protected void processMessage(WorkflowMessage message) {
         workflowStepService.handleStepEvent(message);
     }

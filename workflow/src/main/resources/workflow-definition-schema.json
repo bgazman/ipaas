@@ -1,0 +1,81 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["id", "name", "nodes", "transitions"],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "globalSettings": {
+        "type": "object",
+        "properties": {
+          "defaultMaxRetries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "defaultSlaMinutes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "nodes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "type"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["START", "TASK", "DECISION", "END"]
+            },
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "slaMinutes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      },
+      "transitions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "sourceNodeId", "targetNodeId"],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "sourceNodeId": {
+              "type": "string"
+            },
+            "targetNodeId": {
+              "type": "string"
+            },
+            "condition": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }

@@ -78,7 +78,7 @@ public abstract class WorkflowStepService{
         }
         updateStep(step);
 
-        messageProducer.sendWorkflowEvent(step.getWorkflow());    }
+        messageProducer.sendWorkflowEvent(step.getWorkflow(),"");    }
    
     public String handleBusinessLogic(String payload){
         return "";

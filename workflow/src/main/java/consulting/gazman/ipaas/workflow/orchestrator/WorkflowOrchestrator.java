@@ -70,7 +70,9 @@ public class WorkflowOrchestrator  {
                 startWorkflowExecution(workflowId);
                 return;
             }
-        
+        if(workflow.getStatus().equals( WorkflowStatus.RUNNING.name())){
+            
+        }
 
     }
 

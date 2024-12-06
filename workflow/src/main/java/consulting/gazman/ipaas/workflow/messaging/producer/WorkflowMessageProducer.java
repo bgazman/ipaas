@@ -40,12 +40,12 @@ public class WorkflowMessageProducer{
         });
     }
 
-    public void sendWorkflowEvent(Workflow workflow) {
+    public void sendWorkflowEvent(Workflow workflow,String action) {
 
         WorkflowMessage workflowMessage = new WorkflowMessage();
         workflowMessage.setWorkflowId(workflow.getId());
         workflowMessage.setWorkflowName(workflow.getName());
-        workflowMessage.setAction("");
+        workflowMessage.setAction(action);
         convertAndSendMessage(QueueNames.getWorkflowQueue(workflowMessage.getWorkflowName()), workflowMessage);
     }
 

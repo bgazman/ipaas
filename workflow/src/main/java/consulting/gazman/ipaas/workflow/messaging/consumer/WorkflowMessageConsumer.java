@@ -54,7 +54,6 @@ public abstract class WorkflowMessageConsumer  {
         try {
 //            Object payload = messageConverter.fromMessage(message);
             WorkflowMessage workflowMessage = convertMessage(message);
-            System.out.println("MESSAGE: " + workflowMessage);
             processMessage(workflowMessage);
             
 

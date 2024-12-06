@@ -72,7 +72,7 @@ public class WorkflowServiceImpl<T> implements WorkflowService {
         workflow = workflowRepository.save(workflow);
         // Assuming T is String in this case
 
-        messageProducer.sendWorkflowEvent(workflow);
+        messageProducer.sendWorkflowEvent(workflow,"RECREATE");
 
         workflow = workflowRepository.save(workflow);
 
@@ -110,7 +110,7 @@ public class WorkflowServiceImpl<T> implements WorkflowService {
         }
         try {
 
-            messageProducer.sendWorkflowEvent(workflow);
+            messageProducer.sendWorkflowEvent(workflow,"CREATE");
         } catch (Exception e) {
             // Consider whether you want to roll back the workflow creation if message sending fails
             throw new ApiException("Workflow created but failed to initiate execution: " + workflow.getId());
