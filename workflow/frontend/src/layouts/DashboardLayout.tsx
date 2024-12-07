@@ -12,8 +12,9 @@ const DashboardLayout = ({ children }) => {
 
     return (
         <div className="h-screen flex flex-col">
-            <Navbar onMenuClick={() => setIsOpen(!isOpen)}/>
-            <button onClick={() => setIsOpen(!isOpen)}></button>
+            <nav className="h-16 flex-shrink-0">
+                <Navbar onMenuClick={() => setIsOpen(!isOpen)} />
+            </nav>            {/* <button onClick={() => setIsOpen(!isOpen)}></button> */}
             <div className="flex flex-1">
                 <Sidebar isOpen={isOpen} />
                 <main className="flex-1">{children}</main>

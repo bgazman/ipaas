@@ -10,98 +10,92 @@ import ReactFlow, {
     MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import Workflow from "../Workflow";
+import {WorkflowEdge,WorkflowNode} from "../types/types.ts";
+import {Position} from "../types/workflow-types.ts";
+import { Edge as wfEdge } from "../types/workflow-types";
+import { Node as wfNode } from "../types/workflow-types";
 
-interface WorkflowStep {
-    id: string;
-    type: 'start' | 'end' | 'task' | 'condition' | 'parallel';
-    label: string;
-    next?: string | string[];
-    position?: { x: number; y: number };
-}
 
-interface WorkflowDefinition {
-    steps: WorkflowStep[];
-}
 
-interface WorkflowLayoutProps extends React.HTMLProps<HTMLDivElement> {
-    definition: {
-        steps: Array<{
-            id: string;
-            type: 'start' | 'end' | 'task' | 'condition' | 'parallel';
-            label: string;
-            next?: string | string[];
-        }>;
-    };
-}
-const WorkflowNode = ({ data }: { data: { label: string; type: string } }) => (
-    <div className={`px-4 py-2 rounded-lg border-2 bg-white shadow-md
-    ${data.type === 'start' ? 'border-green-500' :
-        data.type === 'end' ? 'border-red-500' :
-            data.type === 'condition' ? 'border-yellow-500' :
-                'border-blue-500'}`}>
-        <div className="font-medium">{data.label}</div>
-    </div>
-);
 
-const nodeTypes: NodeTypes = {
-    workflow: WorkflowNode
-};
+interface WorkflowLayoutProps {
+    definition: Workflow;
+   }
 
-const createNodesAndEdges = (definition: WorkflowDefinition) => {
-    const stepsWithPositions = definition.steps.map((step, index) => ({
-        ...step,
-        position: { x: 250, y: index * 100 }
-    }));
 
-    const nodes: Node[] = stepsWithPositions.map(step => ({
-        id: step.id,
-        type: 'workflow',
-        position: step.position!,
-        data: { label: step.label, type: step.type }
-    }));
+const calculatePositions = (nodes: wfNode[], edges: wfEdge[]) => {
+    const verticalSpacing = 100;
+    const horizontalSpacing = 200;
 
-    const edges: Edge[] = stepsWithPositions.reduce((acc: Edge[], step) => {
-        if (step.next) {
-            const nextSteps = Array.isArray(step.next) ? step.next : [step.next];
-            nextSteps.forEach(nextId => {
-                acc.push({
-                    id: `${step.id}-${nextId}`,
-                    source: step.id,
-                    target: nextId,
-                    type: 'smoothstep'
-                });
-            });
+    const incomingEdges = new Map();
+    edges.forEach(edge => {
+        if (!incomingEdges.has(edge.target)) {
+            incomingEdges.set(edge.target, []);
         }
-        return acc;
-    }, []);
+        incomingEdges.get(edge.target).push(edge.source);
+    });
 
-    return { nodes, edges };
+    const levels: { [key: number]: string[] } = {};
+    const seen = new Set();
+
+    const assignLevel = (nodeId: string, level: number) => {
+        if (!seen.has(nodeId)) {
+            seen.add(nodeId);
+            levels[level] = levels[level] || [];
+            levels[level].push(nodeId);
+
+            edges
+                .filter(edge => edge.source === nodeId)
+                .forEach(edge => assignLevel(edge.target, level + 1));
+        }
+    };
+
+    nodes
+        .filter(node => !incomingEdges.has(node.id))
+        .forEach(node => assignLevel(node.id, 0));
+
+    const positions: { [key: string]: Position } = {};
+    Object.entries(levels).forEach(([level, nodesInLevel]) => {
+        const levelY = parseInt(level) * verticalSpacing;
+        const startX = (nodesInLevel.length > 1)
+            ? -(horizontalSpacing * (nodesInLevel.length - 1)) / 2
+            : 0;
+
+        nodesInLevel.forEach((nodeId, index) => {
+            positions[nodeId] = {
+                x: startX + (index * horizontalSpacing),
+                y: levelY
+            };
+        });
+    });
+
+    return positions;
 };
+   const WorkflowLayout: React.FC<WorkflowLayoutProps> = ({ definition }) => {
+       const positions = calculatePositions(definition.nodes, definition.edges);
 
-const WorkflowLayout: React.FC<WorkflowLayoutProps> = ({ definition }) => {
-    const { nodes: initialNodes, edges: initialEdges } = createNodesAndEdges(definition);
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+       // Apply calculated positions to nodes
+       const nodesWithPositions = definition.nodes.map(node => ({
+           id: node.id,
+           position: positions[node.id],
+           data: { label: node.id },
+           type: 'default'
+       }));
 
-    return (
-        <div className="w-full h-full">
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                nodeTypes={nodeTypes}
-                defaultEdgeOptions={{
-                    type: 'smoothstep',
-                    style: { stroke: '#64748b' },
-                    markerEnd: { type: MarkerType.ArrowClosed }
-                }}
-                fitView
-            >
-                <Background />
-                <Controls />
-            </ReactFlow>
-        </div>
-    );
-};
+
+       return (
+           <ReactFlow
+               nodes={nodesWithPositions}
+               edges={definition.edges.map(edge => ({
+                   id: edge.id,
+                   source: edge.source,
+                   target: edge.target,
+                   type: 'smoothstep'
+               }))}
+               fitView
+           />
+       );
+   };
+
 export default WorkflowLayout;

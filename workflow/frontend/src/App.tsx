@@ -15,14 +15,23 @@ const App: React.FC = () => {
         </Router>
     );
 };
+
 const workflowDefinition = {
-    steps: [
-      { id: 'start', type: 'start', label: 'Start', next: 'task1' },
-      { id: 'task1', type: 'task', label: 'Process Data', next: 'condition1' },
-      { id: 'condition1', type: 'condition', label: 'Check Status', next: ['task2', 'task3'] },
-      { id: 'task2', type: 'task', label: 'Success Path', next: 'end' },
-      { id: 'task3', type: 'task', label: 'Failure Path', next: 'end' },
-      { id: 'end', type: 'end', label: 'End' }
+    nodes: [
+        { "id": "A"},
+        { "id": "B" },
+        { "id": "C" },
+        { "id": "D" },
+        { "id": "E" },
+        { "id": "F" }
+    ],
+    edges: [
+        { "id": "e1", "source": "A", "target": "B" },
+        { "id": "e2", "source": "B", "target": "C" },
+        { "id": "e3", "source": "B", "target": "D" },
+        { "id": "e4", "source": "B", "target": "E" },
+        { "id": "e5", "source": "C", "target": "F" },
+        { "id": "e6", "source": "D", "target": "F" }
     ]
-  };
+};
 export default App;
