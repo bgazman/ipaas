@@ -1,11 +1,12 @@
-import {Edge , Node , Position, LayoutDirection} from "../types/workflow-types.ts";
-
+// import {WorkflowNode, WorkflowEdge, WorkflowLayoutType} from "../types/workflow-types.ts";
+import {Node,Edge,XYPosition } from "reactflow";
+import WorkflowLayoutType from "../components/WorkflowLayout";
 export const calculatePositions = (
     nodes: Node[],
     edges: Edge[],
-    direction: LayoutDirection
+    layoutType: WorkflowLayoutType
 ) => {
-    return direction === 'vertical'
+    return layoutType === 'vertical'
         ? calculateVerticalPositions(nodes, edges)
         : calculateHorizontalPositions(nodes, edges);
 };
@@ -41,7 +42,7 @@ export const calculateVerticalPositions = (nodes: Node[], edges: Edge[]) => {
         .filter(node => !incomingEdges.has(node.id))
         .forEach(node => assignLevel(node.id, 0));
 
-    const positions: { [key: string]: Position } = {};
+    const positions: { [key: string]: XYPosition } = {};
     Object.entries(levels).forEach(([level, nodesInLevel]) => {
         const levelY = parseInt(level) * verticalSpacing;
         const startX = (nodesInLevel.length > 1)
@@ -89,7 +90,7 @@ export const calculateHorizontalPositions = (nodes: Node[], edges: Edge[]) => {
         .filter(node => !incomingEdges.has(node.id))
         .forEach(node => assignLevel(node.id, 0));
 
-    const positions: { [key: string]: Position } = {};
+    const positions: { [key: string]: XYPosition } = {};
     Object.entries(levels).forEach(([level, nodesInLevel]) => {
         // Assign X based on level (depth)
         const levelX = parseInt(level) * horizontalSpacing + 50; // Added offset

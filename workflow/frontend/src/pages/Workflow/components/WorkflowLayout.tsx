@@ -11,9 +11,11 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Workflow from "../Workflow";
-import {LayoutDirection} from "../types/workflow-types.ts";
 
 import {calculatePositions} from "../utils/WorkflowPositionUtils"
+
+
+export type WorkflowLayoutType = 'vertical' | 'horizontal';
 
 
 
@@ -26,17 +28,17 @@ interface WorkflowLayoutProps {
 
 const WorkflowLayout: React.FC<{
     definition: Workflow;
-    direction?: LayoutDirection;
-}> = ({ definition, direction = 'horizontal' }) => {
-    const positions = calculatePositions(definition.nodes, definition.edges, direction);
+    layoutType?: WorkflowLayoutType;
+}> = ({ definition, layoutType = 'horizontal' }) => {
+    const positions = calculatePositions(definition.nodes, definition.edges, layoutType);
 
     const nodesWithPositions = definition.nodes.map(node => ({
         id: node.id,
         position: positions[node.id],
         data: { label: node.id },
         type: 'default',
-        sourcePosition: direction === 'horizontal' ? Position.Right : Position.Bottom,
-        targetPosition: direction === 'horizontal' ? Position.Left : Position.Top
+        sourcePosition: layoutType === 'horizontal' ? Position.Right : Position.Bottom,
+        targetPosition: layoutType === 'horizontal' ? Position.Left : Position.Top
     }));
 
     return (
