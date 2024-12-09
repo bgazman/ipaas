@@ -1,41 +1,31 @@
 import React from 'react';
-import ReactFlow, {
-    Node,
-    Edge,
-    NodeTypes,
-    Background,
-    Controls,
-    useNodesState,
-    useEdgesState,
-    MarkerType, Position
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import Workflow from "../Workflow";
-
-import {calculatePositions} from "../utils/WorkflowPositionUtils"
-
-
-export type WorkflowLayoutType = 'vertical' | 'horizontal';
-
-
-
+import ReactFlow, {Position, Node, Edge} from 'reactflow';
+import {calculatePositions} from "../utils/WorkflowLayoutUtils.tsx";
+import {useWorkflowLayout} from "../context/WorkflowLayoutContext.tsx";
+import {WorkflowDefinition} from "../types/workflow-types.ts";
 
 interface WorkflowLayoutProps {
-    definition: Workflow;
-   }
+    layoutType: 'horizontal' | 'vertical';
+    workflowDefinition: WorkflowDefinition;
+}
 
+interface WorkflowLayoutProps {
+    layoutType?: string
+}
 
+const WorkflowLayout: React.FC<WorkflowLayoutProps> = ({layoutType = 'horizontal'}) => {
+    const context = useWorkflowLayout();
+    const {definition, handleNodeClick, handleEdgeClick} = context;
+    if (!definition || definition.nodes.length === 0) {
+        return <ReactFlow nodes={[]} edges={[]} fitView/>;
+    }
 
-const WorkflowLayout: React.FC<{
-    definition: Workflow;
-    layoutType?: WorkflowLayoutType;
-}> = ({ definition, layoutType = 'horizontal' }) => {
     const positions = calculatePositions(definition.nodes, definition.edges, layoutType);
 
     const nodesWithPositions = definition.nodes.map(node => ({
         id: node.id,
         position: positions[node.id],
-        data: { label: node.id },
+        data: {label: node.id},
         type: 'default',
         sourcePosition: layoutType === 'horizontal' ? Position.Right : Position.Bottom,
         targetPosition: layoutType === 'horizontal' ? Position.Left : Position.Top
@@ -50,8 +40,12 @@ const WorkflowLayout: React.FC<{
                 target: edge.target,
                 type: 'step',
             }))}
+            onNodeClick={handleNodeClick}
+            onEdgeClick={handleEdgeClick}
+            nodesDraggable={true}
             fitView
         />
     );
 };
+
 export default WorkflowLayout;

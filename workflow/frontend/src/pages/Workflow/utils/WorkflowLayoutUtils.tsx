@@ -4,12 +4,13 @@ import WorkflowLayoutType from "../components/WorkflowLayout";
 export const calculatePositions = (
     nodes: Node[],
     edges: Edge[],
-    layoutType: WorkflowLayoutType
+    layoutType: string
 ) => {
     return layoutType === 'vertical'
         ? calculateVerticalPositions(nodes, edges)
         : calculateHorizontalPositions(nodes, edges);
 };
+
 
 export const calculateVerticalPositions = (nodes: Node[], edges: Edge[]) => {
     const verticalSpacing = 100;
