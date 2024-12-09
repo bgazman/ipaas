@@ -42,7 +42,7 @@ const WorkflowLayout: React.FC<WorkflowLayoutProps> = ({layoutType = 'horizontal
             }))}
             onNodeClick={handleNodeClick}
             onEdgeClick={handleEdgeClick}
-            nodesDraggable={true}
+            nodesDraggable={false}
             fitView
         />
     );

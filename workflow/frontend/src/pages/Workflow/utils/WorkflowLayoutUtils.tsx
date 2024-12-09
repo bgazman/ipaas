@@ -1,6 +1,4 @@
-// import {WorkflowNode, WorkflowEdge, WorkflowLayoutType} from "../types/workflow-types.ts";
 import {Node,Edge,XYPosition } from "reactflow";
-import WorkflowLayoutType from "../components/WorkflowLayout";
 export const calculatePositions = (
     nodes: Node[],
     edges: Edge[],

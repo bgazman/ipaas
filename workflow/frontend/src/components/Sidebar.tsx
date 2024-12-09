@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BarChart, Users, Settings, Workflow, LucideIcon } from 'lucide-react';
+import { Home,  Workflow, LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface NavItem {
@@ -19,7 +19,12 @@ const navItems: NavItem[] = [
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
     return (
-        <aside className={`transition-all duration-300 ${isOpen ? 'w-64' : 'w-1'}`}>
+        <aside className={`
+            fixed top-16 h-[calc(100vh-4rem)] bg-white shadow-lg z-20
+            transition-all duration-300
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+            w-64
+        `}>
             {navItems.map(item => (
                 <Link
                     key={item.path}
@@ -27,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     className="flex items-center p-2 hover:bg-gray-100"
                 >
                     <item.icon size={20} />
-                    {isOpen && <span className="ml-2">{item.label}</span>}
+                    <span className="ml-2">{item.label}</span>
                 </Link>
             ))}
         </aside>

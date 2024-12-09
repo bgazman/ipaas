@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import { Node, Edge } from 'reactflow';
+import React, { createContext, useContext, useState,useCallback  } from 'react';
+import {Node, Edge, Position} from 'reactflow';
 import { WorkflowDefinition } from "../types/workflow-types.ts";
 interface WorkflowLayoutContextType {
     definition: WorkflowDefinition;
@@ -7,6 +7,8 @@ interface WorkflowLayoutContextType {
     handleEdgeClick: (event: any, edge: Edge) => void;
     setDefinition?: (definition: WorkflowDefinition) => void;
     handleAddWorkflow: () => void;  // Add this line
+    layoutType: 'horizontal' | 'vertical';
+
 }
 
 const WorkflowLayoutContext = createContext<WorkflowLayoutContextType>({
@@ -15,7 +17,10 @@ const WorkflowLayoutContext = createContext<WorkflowLayoutContextType>({
     definition: { nodes: [], edges: [] },
     handleNodeClick: () => {},
     handleEdgeClick: () => {},
-    setDefinition: () => {}
+    setDefinition: () => {},
+    layoutType: 'horizontal'
+
+
 });
 
 const emptyWorkflowDefinition: WorkflowDefinition = {
@@ -27,15 +32,40 @@ const emptyWorkflowDefinition: WorkflowDefinition = {
 
     ],
 };
-export const WorkflowLayoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const WorkflowLayoutProvider: React.FC<{
+    children: React.ReactNode;
+    layoutType: 'horizontal' | 'vertical'
+}> = ({ children, layoutType }) => {
     const [definition, setDefinition] = useState<WorkflowDefinition>({
         nodes: [],
         edges: []
     });
 
-    const handleNodeClick = (event: React.MouseEvent, node: Node) => {
-        console.log(node.id);
-    };
+    const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+        const newNodeId = `node-${Date.now()}`;
+        const newNode: Node = {
+            id: newNodeId,
+            type: 'default',
+            data: { label: `New Node ${newNodeId}` },
+            position: layoutType === 'horizontal'
+                ? { x: node.position.x + 200, y: node.position.y }
+                : { x: node.position.x, y: node.position.y + 150 },
+            sourcePosition: layoutType === 'horizontal' ? Position.Right : Position.Bottom,
+            targetPosition: layoutType === 'horizontal' ? Position.Left : Position.Top
+        };
+
+        const newEdge: Edge = {
+            id: `edge-${Date.now()}`,
+            source: node.id,
+            target: newNodeId,
+            type: 'step'
+        };
+
+        setDefinition(prev => ({
+            nodes: [...prev.nodes, newNode],
+            edges: [...prev.edges, newEdge]
+        }));
+    }, [layoutType]);
 
     const handleEdgeClick = (event: React.MouseEvent, edge: Edge) => {
         // Edge click handler implementation
@@ -47,11 +77,12 @@ export const WorkflowLayoutProvider: React.FC<{ children: React.ReactNode }> = (
 
     return (
         <WorkflowLayoutContext.Provider value={{
+            layoutType,
             definition,
             handleNodeClick,
             handleEdgeClick,
             setDefinition,
-            handleAddWorkflow  // Add this new function to the context
+            handleAddWorkflow
         }}>
             {children}
         </WorkflowLayoutContext.Provider>
