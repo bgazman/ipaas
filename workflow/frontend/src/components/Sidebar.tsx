@@ -10,6 +10,7 @@ interface NavItem {
 
 interface SidebarProps {
     isOpen: boolean;
+    onClose: () => void;
 }  // Removed navItems from props since it's defined internally
 
 const navItems: NavItem[] = [
@@ -17,7 +18,7 @@ const navItems: NavItem[] = [
     { icon: Workflow, label: 'Workflow', path: '/workflow' },
 ];
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     return (
         <aside className={`
             fixed top-16 h-[calc(100vh-4rem)] bg-white shadow-lg z-20
@@ -30,6 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
                     key={item.path}
                     to={item.path}
                     className="flex items-center p-2 hover:bg-gray-100"
+                    onClick={onClose} // Close sidebar when clicking on a link
                 >
                     <item.icon size={20} />
                     <span className="ml-2">{item.label}</span>
