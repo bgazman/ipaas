@@ -1,4 +1,6 @@
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { workflowsDefinitions } from '../api/workflow-definitions.ts';
+import { WorkflowDefinition } from '../pages/WorkflowDefinition/types/workflow-types.ts';
 import { TreeContext } from '../context/TreeContext';
 
 export const useTree = () => {
@@ -7,4 +9,27 @@ export const useTree = () => {
         throw new Error('useTree must be used within a TreeProvider');
     }
     return context;
+};
+
+export const useWorkflows = () => {
+    const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchWorkflows = async () => {
+        try {
+            const response = await workflowsDefinitions.getAll();
+            setWorkflows(response.data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to fetch workflows');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchWorkflows();
+    }, []);
+
+    return { workflows, loading, error, fetchWorkflows };
 };

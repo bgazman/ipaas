@@ -1,37 +1,39 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import Tree from "../../../components/Tree/Tree.tsx";
-import {TreeProvider} from "../../../context/TreeContext.tsx";
+import {WorkflowDefinitionProvider} from "../context/WorkflowDefinitionContext.tsx";
 
 
+// const data = [
+//     { id: '1', label: 'Root' },
+//     { id: '2', parentId: '1', label: 'Child 1' },
+//     { id: '3', parentId: '1', label: 'Child 2' }
+// ];
 
 
 const WorkflowSidebar: React.FC = () => {
     const [isCollapsed, setIsCollapsed] = useState(true);
+    const [nodes, setNodes] = useState([
+        { id: '1', label: 'Root', type: 'folder' }
+    ]);
 
-    const initialData = {
-        id: "root",
-        label: "Workflows",
-        type: "folder",
-        children: [
-            {
-                id: "1",
-                label: "Workflow 1",
-                type: "folder",
-                children: [
-                    { id: "1-1", label: "Task 1", type: "file" },
-                    { id: "1-2", label: "Task 2", type: "file" },
-                ],
-            },
-            {
-                id: "2",
-                label: "Workflow 2",
-                type: "folder",
-                children: [
-                    { id: "2-1", label: "Task 1", type: "file" }
-                ],
-            },
-        ],
+    const handleAdd = (parentId: string | null, label: string, type: 'folder' | 'file') => {
+        const newNode = {
+            id: crypto.randomUUID(),
+            parentId,
+            label,
+            type
+        };
+        setNodes([...nodes, newNode]);
+    };
+
+    const handleOpen = (nodeId: string) => {
+        // Handle file open
+        console.log('Opening file:', nodeId);
+    };
+
+    const handleDelete = (nodeId: string) => {
+        setNodes(nodes.filter(n => n.id !== nodeId));
     };
 
     return (
@@ -45,9 +47,9 @@ const WorkflowSidebar: React.FC = () => {
                 `}
             >
                 <div className="h-full w-64"> {/* Container with fixed width */}
-                    <TreeProvider initialData={initialData}>
-                        <Tree />
-                    </TreeProvider>
+                    <WorkflowDefinitionProvider >
+                        <Tree nodes={nodes} onAdd={handleAdd} onDelete={handleDelete} />
+                    </WorkflowDefinitionProvider>
                 </div>
             </div>
             <div

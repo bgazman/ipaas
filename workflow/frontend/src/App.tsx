@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import Home from './pages/Home';
-import Workflow from './pages/Workflow/Workflow.tsx';
+import WorkflowDefinition from './pages/WorkflowDefinition/WorkflowDefinition.tsx';
 const App: React.FC = () => {
     return (
         <Router>
                 <DashboardLayout>
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/workflow" element={<Workflow />} />
+                        <Route path="/workflow" element={<WorkflowDefinition />} />
                     </Routes>
                 </DashboardLayout>
         </Router>
