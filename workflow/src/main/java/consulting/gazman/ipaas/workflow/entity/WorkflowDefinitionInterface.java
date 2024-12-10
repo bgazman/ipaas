@@ -1,10 +1,10 @@
-package consulting.gazman.ipaas.workflow.model;
+package consulting.gazman.ipaas.workflow.entity;
 
 import java.util.List;
 import java.time.Duration;
 
 
-public interface WorkflowDefinition {
+public interface WorkflowDefinitionInterface {
     void initialize(Workflow workflow);
     List<WorkflowStep> defineSteps(Workflow workflow);
     List<List<WorkflowStep>> defineParallelSteps(Workflow workflow);

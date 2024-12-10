@@ -1,25 +1,19 @@
 package consulting.gazman.ipaas.workflow.service;
 
-import consulting.gazman.ipaas.workflow.api.dto.request.WorkflowSubmitRequest;
-import consulting.gazman.ipaas.workflow.api.dto.response.StepHistoryResponse;
-import consulting.gazman.ipaas.workflow.api.dto.response.WorkflowDetailsResponse;
-import consulting.gazman.ipaas.workflow.api.dto.response.WorkflowListResponse;
-import consulting.gazman.ipaas.workflow.api.dto.response.WorkflowResubmitResponse;
-import consulting.gazman.ipaas.workflow.api.dto.response.WorkflowSubmitResponse;
-import consulting.gazman.ipaas.workflow.enums.WorkflowType;
-import consulting.gazman.ipaas.workflow.model.Workflow;
-import java.time.LocalDateTime;
+
+import consulting.gazman.ipaas.workflow.api.dto.WorkflowDto;
+
+import java.util.List;
 import java.util.UUID;
 
 public interface WorkflowService {
-    void processWorkflow(UUID workflowId, WorkflowType workflowType);
-    WorkflowSubmitResponse submitWorkflow(WorkflowSubmitRequest request);
-    WorkflowResubmitResponse resubmitWorkflow(UUID workflowId);
-    WorkflowDetailsResponse getWorkflowDetails(UUID workflowId);
-    Workflow getWorkflowById(UUID workflowId);
-    void triggerWorkflowStep(UUID workflowId, String stepName, Integer stepOrder);
-    WorkflowListResponse getWorkflows(int page, int pageSize, String status,
-    String workflowName, LocalDateTime fromDate, LocalDateTime toDate);
-    StepHistoryResponse getStepHistory(UUID workflowId, UUID stepId);
+    List<WorkflowDto> getWorkflows(String name, String status);
 
+    WorkflowDto getWorkflowById(UUID id);
+
+    WorkflowDto createWorkflow(WorkflowDto workflowDto);
+
+    WorkflowDto updateWorkflow(UUID id, WorkflowDto workflowDto);
+
+    void deleteWorkflow(UUID id);
 }

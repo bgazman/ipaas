@@ -2,7 +2,7 @@ package consulting.gazman.ipaas.workflow.service;
 
 import org.springframework.context.ApplicationEvent;
 
-import consulting.gazman.ipaas.workflow.model.WorkflowStep;
+import consulting.gazman.ipaas.workflow.entity.WorkflowStep;
 
 public class StepStatusChangedEvent extends ApplicationEvent {
     private final WorkflowStep step;

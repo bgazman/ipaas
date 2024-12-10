@@ -2,16 +2,14 @@ package consulting.gazman.ipaas.workflow.messaging.producer;
 
 
 import consulting.gazman.ipaas.workflow.messaging.model.WorkflowMessage;
-import consulting.gazman.ipaas.workflow.model.Workflow;
+import consulting.gazman.ipaas.workflow.entity.Workflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import consulting.gazman.ipaas.workflow.messaging.constants.QueueNames;
-import consulting.gazman.ipaas.workflow.model.WorkflowStep;
 import jakarta.annotation.PostConstruct;
 
 import java.util.UUID;

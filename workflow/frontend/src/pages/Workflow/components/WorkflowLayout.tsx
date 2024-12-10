@@ -6,7 +6,7 @@ import {WorkflowDefinition} from "../types/workflow-types.ts";
 
 interface WorkflowLayoutProps {
     layoutType: 'horizontal' | 'vertical';
-    workflowDefinition: WorkflowDefinition;
+    workflowDefinitionInterface: WorkflowDefinition;
 }
 
 interface WorkflowLayoutProps {

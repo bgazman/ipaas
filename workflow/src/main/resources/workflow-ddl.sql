@@ -64,9 +64,11 @@ CREATE TABLE IF NOT EXISTS workflow.workflow_payloads (
 
 CREATE TABLE IF NOT EXISTS workflow.workflow_definitions (
     id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,  -- e.g., "submit-order", "process-payment"
+    domain VARCHAR(255) NOT NULL, -- directory name
+    name VARCHAR(255) NOT NULL, -- file name
+    type VARCHAR(255) NOT NULL,
     version VARCHAR(50) NOT NULL,       -- e.g., "1.0.0", "2.1.0"
-    definition JSONB NOT NULL,          -- Stores the workflow structure
+    definition TEXT NOT NULL,          -- Stores the workflow structure
     active BOOLEAN DEFAULT true,        -- Whether this version is active
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),

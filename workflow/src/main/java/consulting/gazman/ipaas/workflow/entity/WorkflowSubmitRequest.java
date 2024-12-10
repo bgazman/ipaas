@@ -1,4 +1,4 @@
-package consulting.gazman.ipaas.workflow.model;
+package consulting.gazman.ipaas.workflow.entity;
 
 public class WorkflowSubmitRequest {
     private String workflowName;

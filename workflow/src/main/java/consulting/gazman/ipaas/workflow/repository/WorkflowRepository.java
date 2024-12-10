@@ -1,34 +1,35 @@
 package consulting.gazman.ipaas.workflow.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import consulting.gazman.ipaas.workflow.model.Workflow;
+import consulting.gazman.ipaas.workflow.entity.Workflow;
 
 import java.util.List;
 import java.util.UUID;
 
+
+
+import org.springframework.data.jpa.repository.Query;
+
 @Repository
 public interface WorkflowRepository extends JpaRepository<Workflow, UUID> {
 
-    Page<Workflow> findByStatusAndNameContaining(String status, String name, Pageable pageable);
+    // Find workflows by name
+    List<Workflow> findByName(String name);
+
+    // Find workflows by status
     List<Workflow> findByStatus(String status);
 
-    Page<Workflow> findByStatus(String status, Pageable pageable);
+    // Find workflows by name and status
+    List<Workflow> findByNameAndStatus(String name, String status);
 
-    Page<Workflow> findByNameContaining(String name, Pageable pageable);
+    // Find workflows by parentWorkflowId (for sub-workflows)
+    List<Workflow> findByParentWorkflowId(UUID parentWorkflowId);
 
-    @EntityGraph(attributePaths = "steps")
-    Page<Workflow> findAll(Specification<Workflow> spec, Pageable pageable);
-
-//    @EntityGraph(type = EntityGraph.EntityGraphType.FETCH,
-//            attributePaths = {"steps", "payload"})
-//    Optional<Workflow> findById(UUID id);
-
-
-
-
+    // Custom query for workflows close to their SLA deadline
+    @Query("SELECT w FROM Workflow w WHERE w.slaDeadline < CURRENT_TIMESTAMP")
+    List<Workflow> findWorkflowsCloseToDeadline();
 }
+
+
+

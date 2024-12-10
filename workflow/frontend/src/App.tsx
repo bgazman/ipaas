@@ -16,7 +16,7 @@ const App: React.FC = () => {
     );
 };
 
-// const workflowDefinition = {
+// const workflowDefinitionInterface = {
 //     nodes: [
 //         { id: "Start", type: "trigger", status: "ready" },
 //         { id: "Input_Validation", type: "validator", status: "pending" },
