@@ -27,7 +27,7 @@ interface WorkflowDefinitionContextType {
   fetchWorkflows: () => Promise<void>;
 }
 
-export const WorkflowDefinitionContext = createContext<WorkflowDefinitionContextType | null>(null);
+export const WorkflowDefinitionTreeContext = createContext<WorkflowDefinitionContextType | null>(null);
 
 export const WorkflowDefinitionProvider = ({ children }: { children: React.ReactNode }) => {
   const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
@@ -51,14 +51,14 @@ export const WorkflowDefinitionProvider = ({ children }: { children: React.React
   }, []);
 
   return (
-      <WorkflowDefinitionContext.Provider value={{ workflows, loading, error, fetchWorkflows }}>
+      <WorkflowDefinitionTreeContext.Provider value={{ workflows, loading, error, fetchWorkflows }}>
         {children}
-      </WorkflowDefinitionContext.Provider>
+      </WorkflowDefinitionTreeContext.Provider>
   );
 };
 
 export const useWorkflowDefinition = () => {
-  const context = useContext(WorkflowDefinitionContext);
+  const context = useContext(WorkflowDefinitionTreeContext);
   if (!context) {
     throw new Error('useWorkflowDefinition must be used within a WorkflowDefinitionProvider');
   }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { workflowsDefinitions } from '../api/workflow-definitions.ts';
+import { api } from '../api/WorkflowDefinitionApi.ts';
 import { WorkflowDefinition } from '../pages/WorkflowDefinition/types/workflow-types.ts';
 import { TreeContext } from '../context/TreeContext';
 
@@ -16,20 +16,19 @@ export const useWorkflows = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchWorkflows = async () => {
-        try {
-            const response = await workflowsDefinitions.getAll();
-            setWorkflows(response.data);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to fetch workflows');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const fetchWorkflows = async () => {
+    //     try {
+    //         const response = await workflowsDefinitions.getAll();
+    //         setWorkflows(response.data);
+    //     } catch (err) {
+    //         setError(err instanceof Error ? err.message : 'Failed to fetch workflows');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
-    useEffect(() => {
-        fetchWorkflows();
-    }, []);
+    // useEffect(() => {
+    //     fetchWorkflows();
+    // }, []);
 
-    return { workflows, loading, error, fetchWorkflows };
 };

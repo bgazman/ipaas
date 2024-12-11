@@ -10,9 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/workflow-definitions")
+@RequestMapping("/api/workflow/definition")
 public class WorkflowDefinitionController extends BaseController {
 
     private final WorkflowDefinitionService workflowDefinitionService;
@@ -55,5 +56,32 @@ public class WorkflowDefinitionController extends BaseController {
         return ResponseEntity.ok(successResponse(createdWorkflow, "Workflow definition created successfully."));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteWorkflowDefinition(
+            @PathVariable String id, HttpServletRequest httpServletRequest) {
+        // Process metadata
+        Map<String, Object> metadata = extractMetadata(httpServletRequest);
+        logMetadata(metadata);
 
+        // Delete workflow definition
+        workflowDefinitionService.deleteWorkflow(UUID.fromString(id));
+
+        return ResponseEntity.ok(successResponse(null, "Workflow definition deleted successfully."));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<WorkflowDefinitionDto>> updateWorkflowDefinition(
+            @PathVariable String id,
+            @RequestBody ApiRequest<WorkflowDefinitionDto> request,
+            HttpServletRequest httpServletRequest) {
+        // Process metadata
+        Map<String, Object> metadata = extractMetadata(httpServletRequest);
+        logMetadata(metadata);
+
+        // Update workflow definition
+        WorkflowDefinitionDto workflowDto = request.getData();
+        WorkflowDefinitionDto updatedWorkflow = workflowDefinitionService.updateWorkflow(UUID.fromString(id), workflowDto);
+
+        return ResponseEntity.ok(successResponse(updatedWorkflow, "Workflow definition updated successfully."));
+    }
 }

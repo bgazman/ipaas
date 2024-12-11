@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react'; // Make sure to import your icons
 import { WorkflowLayoutProvider, useWorkflowLayout } from './context/WorkflowLayoutContext';
 import WorkflowLayout from './components/WorkflowLayout';
-import WorkflowSidebar from "./components/WorkflowSidebar.tsx";
+import WorkflowSidebar from "./components/WorkflowDefinitionSidebar.tsx";
 
 const WorkflowContainer = () => {
     const [isCollapsed, setIsCollapsed] = useState(true);
