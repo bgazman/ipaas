@@ -1,0 +1,116 @@
+{
+  "workflowDefinitions": {
+    "message": "SUCCESS",
+    "status": "SUCCESS",
+    "data": [
+      {
+        "id": 1,
+        "name": "Order Processing Workflow",
+        "app": "OMS",
+        "type": "basic",
+        "version": "1.0.0",
+        "definition": {
+          "nodes": [
+            {
+              "id": "start",
+              "type": "input",
+              "data": { "label": "Order Received" },
+              "position": { "x": 250, "y": 0 }
+            },
+            {
+              "id": "validate",
+              "data": { "label": "Validate Order" },
+              "position": { "x": 250, "y": 100 }
+            },
+            {
+              "id": "stock_check",
+              "data": { "label": "Check Stock" },
+              "position": { "x": 100, "y": 200 }
+            },
+            {
+              "id": "payment_auth",
+              "data": { "label": "Payment Authorization" },
+              "position": { "x": 400, "y": 200 }
+            },
+            {
+              "id": "restock",
+              "data": { "label": "Request Restock" },
+              "position": { "x": 100, "y": 300 }
+            },
+            {
+              "id": "process_payment",
+              "data": { "label": "Process Payment" },
+              "position": { "x": 400, "y": 300 }
+            },
+            {
+              "id": "wait_stock",
+              "data": { "label": "Wait for Stock" },
+              "position": { "x": 100, "y": 400 }
+            },
+            {
+              "id": "prepare_shipment",
+              "data": { "label": "Prepare Shipment" },
+              "position": { "x": 250, "y": 500 }
+            },
+            {
+              "id": "end",
+              "type": "output",
+              "data": { "label": "Order Complete" },
+              "position": { "x": 250, "y": 600 }
+            }
+          ],
+          "edges": [
+            { "id": "e-start-validate", "source": "start", "target": "validate",  "type": "step"},
+            { "id": "e-validate-stock", "source": "validate", "target": "stock_check", "type": "step"},
+            { "id": "e-validate-payment", "source": "validate", "target": "payment_auth", "type": "step"},
+            { "id": "e-stock-restock", "source": "stock_check", "target": "restock", "type": "step"},
+            { "id": "e-restock-wait", "source": "restock", "target": "wait_stock", "type": "step"},
+            { "id": "e-wait-prepare", "source": "wait_stock", "target": "prepare_shipment", "type": "step"},
+            { "id": "e-stock-prepare", "source": "stock_check", "target": "prepare_shipment", "type": "step"},
+            { "id": "e-auth-process", "source": "payment_auth", "target": "process_payment", "type": "step"},
+            { "id": "e-process-prepare", "source": "process_payment", "target": "prepare_shipment", "type": "step"},
+            { "id": "e-prepare-end", "source": "prepare_shipment", "target": "end", "type": "step"}
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "name": "User Registration Workflow",
+        "app": "OMS",
+        "type": "basic",
+        "version": "1.0.0",
+        "definition": {
+          "nodes": [
+            {
+              "id": "1",
+              "type": "input",
+              "data": { "label": "Start" },
+              "position": { "x": 100, "y": 0 }
+            },
+            {
+              "id": "2",
+              "data": { "label": "Collect Data" },
+              "position": { "x": 100, "y": 100 }
+            },
+            {
+              "id": "3",
+              "data": { "label": "Verify Email" },
+              "position": { "x": 100, "y": 200 }
+            },
+            {
+              "id": "4",
+              "type": "output",
+              "data": { "label": "Activate Account" },
+              "position": { "x": 100, "y": 300 }
+            }
+          ],
+          "edges": [
+            { "id": "e1-2", "source": "1", "target": "2" },
+            { "id": "e2-3", "source": "2", "target": "3" },
+            { "id": "e3-4", "source": "3", "target": "4" }
+          ]
+        }
+      }
+    ]
+  }
+}

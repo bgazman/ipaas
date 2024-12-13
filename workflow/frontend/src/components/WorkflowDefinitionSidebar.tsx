@@ -1,18 +1,9 @@
 export const WorkflowDefinitionSidebar = ({ children, onCreateClick }) => {
 
     return (
-        <aside className="w-64 border-r border-gray-200 bg-white"> {/* Added border-r here */}
+        <aside className="w-64 flex-shrink-0 min-h-[calc(100vh-4rem)] border-r border-gray-200">
 
-            <div style={{
-                width: '300px',
-                height: 'calc(100vh - 64px)',
-                position: 'fixed',
-                left: 0,
-                top: '64px',
-                backgroundColor: 'white',
-                borderRight: '1px solid #eee',
-                overflowY: 'auto'
-            }}>
+            <div className="h-full py-4">
                 <div style={{
                     padding: '20px',
                     borderBottom: '1px solid #eee',

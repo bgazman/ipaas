@@ -4,8 +4,7 @@ import WorkflowDefinitionService from "../api/WorkflowDefinitionService";
 import { useState, useEffect } from 'react';
 import WorkflowDefinitionDialog from "../components/WorkflowDefinitionDialog";
 import {WorkflowDefinitionSidebar} from "../components/WorkflowDefinitionSidebar";
-import WorkflowFlowView from "../components/WorkflowView";
-import WorkflowView from "../components/WorkflowView";
+import WorkflowViewer from "../components/WorkflowViewer.tsx";
 const WorkflowDefinitions = () => {
     const [workflows, setWorkflows] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -15,6 +14,7 @@ const WorkflowDefinitions = () => {
 
     const handleDefinitionSelected = (workflow) => {
         setSelectedWorkflow(workflow);
+        console.log("SELECTED DEFINITION: ",workflow)
     };
 
 
@@ -44,7 +44,7 @@ const WorkflowDefinitions = () => {
         fetchWorkflowDefinitions();
     }, []);
     return (
-        <div className="flex h-[calc(100vh-4rem)] pt-16"> {/* Adjusted height and added padding-top */}
+        <div className="max-w-7xl mx-auto flex min-h-[calc(100vh-4rem)]">
             <WorkflowDefinitionSidebar onCreateClick={() => setShowDialog(true)}>
                 <WorkflowDefinitionList
                     workflows={workflows}
@@ -59,11 +59,12 @@ const WorkflowDefinitions = () => {
                 onSave={handleCreate}
             />
             {/* Container for the main content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-grow h-full">
                 {selectedWorkflow ? (
                     <div className="flex flex-col h-full">
                         <div className="flex-1 relative overflow-hidden">
-                            <WorkflowView workflow={selectedWorkflow.definition}/>
+                            {/*<WorkflowView workflow={selectedWorkflow.definition}/>*/}
+                            <WorkflowViewer workflow={selectedWorkflow.definition}/>
                         </div>
                     </div>
                 ) : (

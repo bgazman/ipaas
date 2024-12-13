@@ -2,7 +2,7 @@ import axios from "axios";
 
 class WorkflowDefinitionsService {
     constructor() {
-        this.baseUrl = "http://localhost:8081/api/workflow/definition";
+        this.baseUrl = "http://localhost:8081/workflowDefinitions";
     }
 
     // Method to fetch all workflow definitions
