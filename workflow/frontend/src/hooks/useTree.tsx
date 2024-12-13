@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { api } from '../api/WorkflowDefinitionApi.ts';
+import { api } from '../api/WorkflowDefinitionService.tsx';
 import { WorkflowDefinition } from '../pages/WorkflowDefinition/types/workflow-types.ts';
 import { TreeContext } from '../context/TreeContext';
 
