@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {api} from "../../../api/WorkflowDefinitionApi";
 import {ApiResponse, WorkflowDefinition} from "../../../api/WorkflowDefinitionApi";
-import WorkflowDefinitionTree from "../components/WorkflowDefinitionTree.tsx";
 import {WorkflowDefinitionProvider} from "../context/WorkflowDefinitionTreeContext.tsx";
 
 
@@ -130,15 +129,7 @@ const WorkflowDefinitionSidebar = () => {
             <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'w-0' : 'w-64'} bg-white border-r overflow-hidden`}>
                 <div className="h-full w-64">
                     <WorkflowDefinitionProvider>
-                        {loading ? (
-                            <div className="flex items-center justify-center h-full">
-                                <span className="loading loading-spinner" />
-                            </div>
-                        ) : error ? (
-                            <div className="p-4 text-red-500">{error}</div>
-                        ) : (
-                            <WorkflowDefinitionTree nodes={nodes} onAdd={handleAdd} onDelete={deleteWorkflowDefinition} />
-                        )}
+
                     </WorkflowDefinitionProvider>
                 </div>
             </div>

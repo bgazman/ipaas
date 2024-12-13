@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import DashboardLayout from './layouts/DashboardLayout';
+import DashboardLayout from './components/layout/DashboardLayout';
 import Home from './pages/Home';
 import WorkflowDefinition from './pages/WorkflowDefinition/WorkflowDefinition.tsx';
 const App: React.FC = () => {
